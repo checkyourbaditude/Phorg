@@ -4,6 +4,8 @@
 # imports
 import os
 import sys
+import shutil
+
 from PIL import Image
 from PIL.ExifTags import TAGS
 from collections import Counter
@@ -53,7 +55,18 @@ def createDatedDirectories(date, absFilePath):
 	os.mkdir(newDirName)
 	os.mkdir(newDirName+'/RAW')
 	os.mkdir(newDirName+'/JPG')
-	print "Directory" , newDirName , " created along with JPG and RAW directories"
+	os.mkdir(newDirName+'/Highlights')
+	#os.mkdir(newDirName+'/'+date+'.txt')
+
+	#create text file for context
+	f=open(date+'.txt','w')
+	f.write(date+'\n\nShooting Location:\n\n'+'Discription:')
+	f.close()
+
+	#move the text file to the correct folder
+	shutil.move(date+'.txt',absFilePath+'/'+date)
+
+	print "Directory" , newDirName , " created along with Highlights, JPG, and RAW directories"
 
 
 
@@ -127,9 +140,19 @@ def fileIsRaw(image):
 	else:
 		return False
 
+def countRAW(dirList):
+
+	countRAW=0
+
+	for file in dirList:
+		if (fileIsRaw(file)):
+			countRAW += 1	
+	print countRAW
+
+	return countRAW;
 
 
-		"""	
+"""	
 def checkFileExists(fileName,absFilePath):
 
 	#checks to see if the path still exists
