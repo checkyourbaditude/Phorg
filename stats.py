@@ -4,76 +4,77 @@ import os
 from tkFileDialog import askdirectory
 from Tkinter import *
 
-#initializes program with the window
-def initialize():
+class ARWFinder(window):
 
-	#initalize the window
-	window = Tk()
-	window.title("Welcome to Phorg")
-	window.geometry('350x100')
+		#initializes program with the window
+		def initialize():
 
-	#create labels for text box
-	lbl=Label(window, text="Path")
-	lbl.grid(column=0, row=0)
-	lb2=Label(window, text="Explore")
-	lb2.grid(column=1,row=0)
-	lb3=Label(window, text="Destination")
-	lb3.grid(column=0, row=1)
+			#create labels for text box
+			lbl=Label(window, text="Path")
+			lbl.grid(column=0, row=0)
+			lb2=Label(window, text="Explore")
+			lb2.grid(column=1,row=0)
+			lb3=Label(window, text="Destination")
+			lb3.grid(column=0, row=1)
 
-	#variables to hold the inputs from the user
-	Path=Entry(window,width=40,)
-	Path.insert(0,'C:\Users\Chris\Desktop\example')
-	Path.grid(column=1, row=0)
-	Destination=Entry(window,width=40)
-	Destination.grid(column=1, row=1)
+			#variables to hold the inputs from the user
+			Path=Entry(window,width=40,)
+			Path.insert(0,'C:\Users\Chris\Desktop\example')
+			Path.grid(column=1, row=0)
+			Destination=Entry(window,width=40)
+			Destination.grid(column=1, row=1)
 
-	#explore buttons
-	ExploreButton=Button(window, text="...", command= lambda: get_dirname())
-	ExploreButton.grid(column=2, row=0)
+			#explore buttons
+			ExploreButton=Button(window, text="...", command= lambda: get_dirname())
+			ExploreButton.grid(column=2, row=0)
 
-	#button to run the program
-	btn = Button(window, text="Run", command= lambda: run(Path.get(),Destination.get()))
-	btn.grid(column=1, row=2)
-	window.mainloop()
+			#button to run the program
+			RunButton = Button(window, text="Run", command= lambda: run(Path.get(),Destination.get()))
+			RunButton.grid(column=1, row=2)
 
-#function that runs program when clicked
-def run (Path,Destination):
- 
-    #lbl.configure(text="Button was clicked !!")
+			#Button to exit the program
+			ExitButton = Button(window, text="Exit", command= lambda: exit())
+			ExitButton.grid(column=0, row=2)
 
-    tkMessageBox.showinfo("Congradulations!", "You ran the program")
+		#function that runs program when clicked
+		def run (Path,Destination):
+		 
+		    #lbl.configure(text="Button was clicked !!")
 
-    print "This is the path: " + Path
-    print "\nThis is the destination: " + Destination
+		    tkMessageBox.showinfo("Congradulations!", "You ran the program")
 
-    #creates new variable holding the variable names
-    photoNames=getPhotoNames(Path)
+		    print "This is the path: " + Path
+		    print "\nThis is the destination: " + Destination
 
-    #search for .ARW file names in the destination folder
+		    #creates new variable holding the variable names
+		    photoNames=getPhotoNames(Path)
 
-#returns the directory name
-def get_dirname():
-	name= askdirectory() 
-	print name
+		    #search for .ARW file names in the destination folder
 
-#this function is going to return an array of the photo names
-def getPhotoNames(Path):
+		#returns the directory name
+		def get_dirname():
+			name= askdirectory() 
+			print "Name in the get_dirname: " + name
+			return name
 
-	#gets the file name and arranges them in the array
-	dirList=os.listdir(Path)
+		#this function is going to return an array of the photo names
+		def getPhotoNames(Path):
 
-	#print the directory list
-	for x in dirList:
-		if(x.endswith('.JPG')):
-			print "found JPG! Adjusting name...."
-			x=x[:-4]+'.ARW'
-			print "New Name: "+ x
-		else:
-			print "Found non-JPG image, exiting!"
-			exit()
+			#gets the file name and arranges them in the array
+			dirList=os.listdir(Path)
 
-	#return the directory list
-	return dirList
+			#print the directory list
+			for x in dirList:
+				if(x.endswith('.JPG')):
+					print "found JPG! Adjusting name...."
+					x=x[:-4]+'.ARW'
+					print "New Name: "+ x
+				else:
+					print "Found non-JPG image, exiting!"
+					exit()
+
+			#return the directory list
+			return dirList
 
 
 
@@ -82,7 +83,16 @@ def getPhotoNames(Path):
 
 
 #run the program
-initialize()
+def main():
+	#initalize the window
+	window = Tk()
+	window.title("Welcome to Phorg")
+	window.geometry('350x100')
+	app = ARWFinder(window)
+	window.mainloop()
+
+if __name__ == '__main__':
+	main()
 
 
 """

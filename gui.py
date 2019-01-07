@@ -1,60 +1,90 @@
+import Tkinter
+import tkMessageBox
+import os
+from tkFileDialog import askdirectory
 from Tkinter import *
+import Tkinter as tk
 
-class Calculator:
+"""
+	Find path is the path of the files that the user would like copied
+	Move path is the path of the files that the user would like to be moved
+	Des Path is the final destination of the files moved with Find path
+"""
 
-    def __init__(self, master):
-        self.master = master
-        master.title("Calculator")
+class MainApplication(tk.Frame):
 
-        self.total = 0
-        self.entered_number = 0
+    def __init__(self, parent, *args, **kwargs):
 
-        self.total_label_text = IntVar()
-        self.total_label_text.set(self.total)
-        self.total_label = Label(master, textvariable=self.total_label_text)
+    	#initalize
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
 
-        self.label = Label(master, text="Total:")
+        #create the view for the user
+        self.create_View(parent)
 
-        vcmd = master.register(self.validate) # we have to wrap the command
-        self.entry = Entry(master, validate="key", validatecommand=(vcmd, '%P'))
+    def create_View(self,parent):
+    	#add title to window and dims
+      	parent.title("Phorg")
+      	parent.geometry('500x300')
+      	
+        #create lables and field for the find Path, plus explore button at the end
+        self.lbFindPath=Label(parent, text="Path of files Files you would like to find the RAW files of: ")
+        self.lbFindPath.grid(sticky="W",column=0, row=0)
 
-        self.add_button = Button(master, text="+", command=lambda: self.update("add"))
-        self.subtract_button = Button(master, text="-", command=lambda: self.update("subtract"))
-        self.reset_button = Button(master, text="Reset", command=lambda: self.update("reset"))
+        self.FindPath=Entry(parent,width=50)
+        self.FindPath.grid(sticky="W",column=0, row=1)
 
-        # LAYOUT
+        self.ExFindButton=Button(parent, text="...", command=lambda: self.update_View("Find"))
+        self.ExFindButton.grid(sticky="W",column=1,row=1)
 
-        self.label.grid(row=0, column=0, sticky=W)
-        self.total_label.grid(row=0, column=1, columnspan=2, sticky=E)
+        #create Lables and field for the find path
+        self.lbMovePath=Label(parent, text="Path of the files that the user would like to be moved: ")
+        self.lbMovePath.grid(sticky="W",column=0,row=2)
 
-        self.entry.grid(row=1, column=0, columnspan=3, sticky=W+E)
+        self.MovePath=Entry(parent,width=50)
+        self.MovePath.grid(sticky="W",column=0, row=3)
 
-        self.add_button.grid(row=2, column=0)
-        self.subtract_button.grid(row=2, column=1)
-        self.reset_button.grid(row=2, column=2, sticky=W+E)
+        self.ExMoveButton=Button(parent, text="...", command=lambda: self.update_View("Move"))
+        self.ExMoveButton.grid(sticky="W",column=1,row=3)
 
-    def validate(self, new_text):
-        if not new_text: # the field is being cleared
-            self.entered_number = 0
-            return True
+        #label and fields for the destination path
+        self.lbDesPath=Label(parent, text="Final Destination of found files: ")
+        self.lbDesPath.grid(sticky="W",column=0,row=4)
 
-        try:
-            self.entered_number = int(new_text)
-            return True
-        except ValueError:
-            return False
+        self.DesPath=Entry(parent,width=50)
+        self.DesPath.grid(sticky="W",column=0, row=5)
 
-    def update(self, method):
-        if method == "add":
-            self.total += self.entered_number
-        elif method == "subtract":
-            self.total -= self.entered_number
-        else: # reset
-            self.total = 0
+        self.ExDesButton=Button(parent, text="...", command=lambda: self.update_View("Des"))
+        self.ExDesButton.grid(sticky="W",column=1,row=5)
 
-        self.total_label_text.set(self.total)
-        self.entry.delete(0, END)
+        #run the program button
+        self.RunButton=Button(parent, text="Run", command=parent.quit)
+        self.RunButton.grid(sticky="NW",column=0,row=7)
 
-root = Tk()
-my_gui = Calculator(root)
-root.mainloop()
+        #exit Button
+        self.ExitButton=Button(parent, text="Exit", command=parent.quit)
+        self.ExitButton.grid(sticky="N",column=0,row=7)
+
+    
+
+    def update_View(self, Path):
+    	if(Path=="Find"):
+    		print "Entering the askdirectory section for Find Path"
+    		self.FindPath.insert(0, askdirectory())
+    	elif(Path=="Move"):
+    		print "Entering the askdirectory section for Move Path"
+    		self.MovePath.insert(0, askdirectory())
+    	elif(Path=="Des"):
+    		print "Entering the askdirectory section for Des Path"
+    		self.DesPath.insert(0, askdirectory())
+    	else:
+    		tkMessageBox.showinfo("Error", "Correct Exploration Path not provided")
+
+
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    #MainApplication(root).pack(side="top", fill="both", expand=True)
+    MainApplication(root)
+    root.mainloop()
