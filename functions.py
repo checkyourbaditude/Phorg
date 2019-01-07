@@ -4,6 +4,7 @@
 # imports
 import os
 import sys
+import PIL
 import shutil
 
 from PIL import Image

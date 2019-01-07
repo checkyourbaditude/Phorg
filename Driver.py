@@ -13,9 +13,9 @@ from functions import countRAW
 
 
 #variables for the program to work properly
-fileName='unorganized_photos'
-absFilePath='/home/chris/Documents/Phorg/unorganized_photos'
-absFilePathOrg='/home/chris/Documents/Phorg/organized_photos'
+fileName='unorganized'
+absFilePath='C:/Users/Chris/Desktop/Phorg/unorganized'
+absFilePathOrg='C:/Users/Chris/Desktop/Phorg/organized'
 dirList=os.listdir(fileName)
 numPhotos=len(dirList)
 numPhotosRAW=countRAW(dirList)
