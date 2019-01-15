@@ -13,6 +13,7 @@ import Tkinter as tk
 
 class MainApplication(tk.Frame):
 
+    #initalize the program
     def __init__(self, parent, *args, **kwargs):
 
     	#initalize
@@ -22,11 +23,12 @@ class MainApplication(tk.Frame):
         #create the view for the user
         self.create_View(parent)
 
+    #inital view for the user to select the paths the would like to use
     def create_View(self,parent):
     	#add title to window and dims
       	parent.title("Phorg")
       	parent.geometry('500x300')
-      	
+        
         #create lables and field for the find Path, plus explore button at the end
         self.lbFindPath=Label(parent, text="Path of files Files you would like to find the RAW files of: ")
         self.lbFindPath.grid(sticky="W",column=0, row=0)
@@ -54,18 +56,35 @@ class MainApplication(tk.Frame):
         self.DesPath=Entry(parent,width=50)
         self.DesPath.grid(sticky="W",column=0, row=5)
 
-        self.ExDesButton=Button(parent, text="...", command=lambda: self.update_View("Des"))
+        self.ExDesButton=Button(parent, text="...", command= lambda: self.update_View("Des"))
         self.ExDesButton.grid(sticky="W",column=1,row=5)
 
         #run the program button
-        self.RunButton=Button(parent, text="Run", command=parent.quit)
+        self.RunButton=Button(parent, text="Run", command= lambda: controller.validate_View(parent))
         self.RunButton.grid(sticky="NW",column=0,row=7)
 
         #exit Button
         self.ExitButton=Button(parent, text="Exit", command=parent.quit)
         self.ExitButton.grid(sticky="N",column=0,row=7)
 
-    
+    #view that displays all the values that the program has found
+    def validate_View(self,parent):
+
+        #create lables and field for the find Path, plus explore button at the end
+        self.lbFindPath=Label(parent, text="Path of files Files you would like to find the RAW files of: ")
+        self.lbFindPath.grid(sticky="W",column=0, row=0)
+
+        #create Lables and field for the find path
+        self.lbMovePath=Label(parent, text="Path of the files that the user would like to be moved: ")
+        self.lbMovePath.grid(sticky="W",column=0,row=2)
+
+        #label and fields for the destination path
+        self.lbDesPath=Label(parent, text="Final Destination of found files: ")
+        self.lbDesPath.grid(sticky="W",column=0,row=4)
+
+        #exit Button
+        self.ExitButton=Button(parent, text="Exit", command=parent.quit)
+        self.ExitButton.grid(sticky="N",column=0,row=7)
 
     def update_View(self, Path):
     	if(Path=="Find"):
@@ -80,6 +99,18 @@ class MainApplication(tk.Frame):
     	else:
     		tkMessageBox.showinfo("Error", "Correct Exploration Path not provided")
 
+
+class validation_View(tk.Frame):
+
+    #initalize the program
+    def __init__(self, parent, *args, **kwargs):
+
+        #initalize
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
+
+        #create the view for the user
+        self.create_View(parent)
 
 
 
