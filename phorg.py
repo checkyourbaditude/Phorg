@@ -1,8 +1,4 @@
-
-import os
 import sys
-import shutil
-
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -15,7 +11,7 @@ from PyQt5.QtGui import *
     Des Path is the final destination of the files moved with Find path
 
 """
- 
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -30,12 +26,6 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.center()
-
-        """
-
-            Find Path
-
-        """
 
         #create label for find path contents
         self.findLabel= QLabel('Select Directory where the JPGs are Located:', self)
@@ -53,15 +43,32 @@ class App(QWidget):
         self.fbrowseButton.move(525,40)
         self.fbrowseButton.clicked.connect(lambda: self.get_Directory("Find"))
 
-        #give user the number of JPGs found in location
-        #self.findLabelJPG=QLabel('Number of JPGs found at path: ', self)
-        #self.findLabelJPG.move()
 
-        """
+        '''
+        #set up the view for the path folder below
 
-            Move Path
+        hlay = QHBoxLayout(self)
+        self.treeview = QTreeView()
+        self.listview = QListView()
+        hlay.addWidget(self.treeview)
+        hlay.addWidget(self.listview)
 
-        """
+        path = QDir.rootPath()
+
+        self.dirModel = QFileSystemModel()
+        self.dirModel.setRootPath(QDir.rootPath())
+        self.dirModel.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
+
+        self.fileModel = QFileSystemModel()
+        self.fileModel.setFilter(QDir.NoDotAndDotDot |  QDir.Files)
+
+        self.treeview.setModel(self.dirModel)
+        self.listview.setModel(self.fileModel)
+
+        self.treeview.setRootIndex(self.dirModel.index(path))
+        self.listview.setRootIndex(self.fileModel.index(path))
+
+        self.treeview.clicked.connect(self.on_clicked)
 
         #create label for move lable contents
         self.moveLabel= QLabel('Select Directory where the Raw Files that need to be moved are located:', self)
@@ -79,16 +86,6 @@ class App(QWidget):
         self.mbrowseButton.move(525,100)
         self.mbrowseButton.clicked.connect(lambda: self.get_Directory("Move"))
 
-        #give user the number of RAW files found in location
-        #self.findLabelJPG=QLabel('Number of Raws found at path: ', self)
-        #self.findLabelJPG.move()
-
-        """
-
-            Destination Path
-
-        """
-
         #create label for destination path
         self.desLabel= QLabel('Select Directory where the JPGs are Located:', self)
         self.desLabel.move(25,140)
@@ -98,27 +95,20 @@ class App(QWidget):
         self.desPathLine.move(25,155)
         self.desPathLine.resize(500,20)
 
-        #create browse button for destination path
+        #create browse button for move path
         self.mbrowseButton = QPushButton('...',self)
         self.mbrowseButton.setToolTip('Submit the above information')
         self.mbrowseButton.resize(20,20)
         self.mbrowseButton.move(525,155)
         self.mbrowseButton.clicked.connect(lambda: self.get_Directory("Des"))
 
-        #give user the number of RAW files To be moved
-        #self.findLabelJPG=QLabel('Number of Raws to be moved to destination: ', self)
-        #self.findLabelJPG.move()
-
-        """
-
-            Buttons for Submiting paths and Exiting the program
-
-        """
+        '''
 
         #create the submit button
         self.quitButton = QPushButton('Submit',self)
         self.quitButton.setToolTip('Submit the above information')
         self.quitButton.move(200,495)
+
         self.quitButton.clicked.connect(self.run_Command)
 
         #create the exit button
@@ -127,8 +117,9 @@ class App(QWidget):
         self.exitButton.move(100,495)
         self.exitButton.clicked.connect(self.close)
 
-        self.show()
+        #path=self.getText()
 
+        self.show()
 
         #function that returns the directory the user chooses
     def get_Directory(self, text):
@@ -144,6 +135,9 @@ class App(QWidget):
             self.findPath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             print (str(text)+" directory: "+self.findPath)
             self.findPathLine.setText(self.findPath)
+
+            #send path to function to find the number of JPGs at the location
+            self.findLabel.setText(str(self.findLabel.text()+" THIS WORKED"))
 
             return
 
@@ -169,7 +163,7 @@ class App(QWidget):
             #put in an error message box with message
             print("An error has occured")
 
-    #centers the window when it is opened
+
     def center(self):
         # geometry of the main window
         qr = self.frameGeometry()
@@ -183,88 +177,24 @@ class App(QWidget):
         # top left of rectangle becomes top left of window centering it
         self.move(qr.topLeft())
 
-
-
-    #command runs the program, outputing an error if paths do not have correct files
-
-    """
-        Catch Arritbute Error if a path name is not passed
-
-    """
-
     def run_Command(self):
         
-        print ("Inside the run_command function")
+        print ("Inside quit application")
 
-        #print out the paths
-        print ("Find Path: "+str(self.findPath))
-        print ("Move Path: "+str(self.movePath))
-        print ("Destination Path: "+str(self.desPath))
+    """def getText(self):
 
-        #create an array of the file names in the find path (this also converts the file names to .ARW files when returned)
-        self.findFiles()
+        text=QLineEdit()
 
-        #go to the move path and search for the files, moving them to the final destination
-        self.moveFiles()
+        text, okPressed = QInputDialog.getText(self, "GetText", "YourName:", QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            print (text)
+            return text
+            """
 
-    #creates a set with the find File path (should be the highlights folder)
-
-    """
-        An error should be thrown if there are duplicate file names found, as the set function will delete them
-    """
-
-    def findFiles(self):
-
-        #move the working directory to the path given in the find path label
-        os.chdir(self.findPath)
-        print ("Current Working Dictory(sound be find path):"+ os.getcwd())
-
-        #create list of each file name found at path
-        self.findItems=os.listdir(self.findPath)
-
-        #the final list of JPGs (assuming not all files at location are JPGs)
-        self.findList=[]
-
-        #loop through the find Items List adding JPGs to the findList and converting the fine name to .ARW extention
-        for names in self.findItems:
-            if names.endswith(".JPG"):
-                names=names[:-4]+'.ARW'
-                self.findList.append(names)
-
-        #make a set with the Find list for data operations in the moveFiles function
-        self.findList=set(self.findList)
-
-        #print the list
-        print (self.findList)
-    
-    #this function moves all the .ARW files found at the move path to the destination path
-
-    """
-        An error should be listed if a specific file isn't found
-        An error should be throw if a duplicate is found
-
-    """
-
-    def moveFiles(self):
-
-        #change the working directory to the move path given by the user
-        os.chdir(self.movePath)
-
-        #create list of ARW files found at move path
-        self.moveItems=set(os.listdir(self.movePath))
-
-        #create final list with the found raw Files in the move Path
-        self.moveList=[]
-
-        #Find the intersections of the two sets
-        self.moveList=self.moveItems.intersection(self.findList)
-
-        #print out the list of found RAW files
-        print (self.moveList)
-
-        #moves the current file to from the unorganized folder to the organized folder in the JPG section
-        for RAW in self.moveList:
-            shutil.move(self.movePath+'/'+RAW,self.desPath)
+    def on_clicked(self, index):
+        path = self.dirModel.fileInfo(index).absoluteFilePath()
+        self.listview.setRootIndex(self.fileModel.setRootPath(path))
 
 
 def main():
