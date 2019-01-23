@@ -11,6 +11,8 @@ from functions import getFocalLength
 from functions import fileIsRaw
 from functions import countRAW
 
+import mysql.connector
+
 
 #variables for the program to work properly
 fileName='unorganized'

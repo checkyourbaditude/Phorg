@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TabWidget</class>
+ <widget class="QTabWidget" name="TabWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>360</width>
+    <height>258</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Phorg</string>
+  </property>
+  <property name="currentIndex">
+   <number>2</number>
+  </property>
+  <widget class="QWidget" name="OrganizeTab">
+   <attribute name="title">
+    <string>Organize</string>
+   </attribute>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="organizeLabel_1">
+      <property name="text">
+       <string>The button below takes all of the photos in the &quot;Unorganized&quot; photo folder and organizes them by date and file type</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="organizeButton">
+      <property name="text">
+       <string>Organize Photos</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="SelectionTab">
+   <attribute name="title">
+    <string>Select</string>
+   </attribute>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0" colspan="3">
+     <widget class="QLabel" name="selectLabel_1">
+      <property name="text">
+       <string>The section is meat to be used after a set of photos has already been organized by the Organize tab. Take the JPG versions you like and put them into the highlights folder. This script will take the RAW versions of the JPGs in the Highlights folder and put them in a new folder called Edits.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="3">
+     <widget class="QPushButton" name="selectButton">
+      <property name="text">
+       <string>Collect RAW Photos</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="3">
+     <widget class="QLabel" name="selectLabel_2">
+      <property name="text">
+       <string>Use the button on the right to select the file path, or enter it manually below</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="2">
+     <widget class="QLineEdit" name="selectLineEdit"/>
+    </item>
+    <item row="5" column="2">
+     <widget class="QPushButton" name="findDateButton">
+      <property name="text">
+       <string>...</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="statTab">
+   <attribute name="title">
+    <string>Statistics</string>
+   </attribute>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

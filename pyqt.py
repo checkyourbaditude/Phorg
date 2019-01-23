@@ -33,88 +33,37 @@ class App(QWidget):
 
         """
 
-            Find Path
+        Find Path to Date
 
         """
 
+
         #create label for find path contents
-        self.findLabel= QLabel('Select Directory where the JPGs are Located:', self)
-        self.findLabel.move(20,20)
+        self.dateLabel= QLabel('Select the date that you would like to collect the RAW photos from:', self)
+        self.dateLabel.move(20,20)
 
         #create line input for user to get directory name for find path
-        self.findPathLine=QLineEdit(self)
-        self.findPathLine.move(20,40)
-        self.findPathLine.resize(500,20)
+        self.datePathLine=QLineEdit(self)
+        self.datePathLine.move(20,40)
+        self.datePathLine.resize(500,20)
 
         #create browse button for find path
-        self.fbrowseButton = QPushButton('...',self)
-        self.fbrowseButton.setToolTip('Submit the above information')
-        self.fbrowseButton.resize(20,20)
-        self.fbrowseButton.move(525,40)
-        self.fbrowseButton.clicked.connect(lambda: self.get_Directory("Find"))
+        self.datebrowseButton = QPushButton('...',self)
+        self.datebrowseButton.setToolTip('Submit the above information')
+        self.datebrowseButton.resize(20,20)
+        self.datebrowseButton.move(525,40)
+        self.datebrowseButton.clicked.connect(lambda: self.get_Directory())
 
         #give user the number of JPGs found in location
         #self.findLabelJPG=QLabel('Number of JPGs found at path: ', self)
         #self.findLabelJPG.move()
 
-        """
-
-            Move Path
 
         """
-
-        #create label for move lable contents
-        self.moveLabel= QLabel('Select Directory where the Raw Files that need to be moved are located:', self)
-        self.moveLabel.move(25,85)
-
-        #create line input for user to get directory name for move path
-        self.movePathLine=QLineEdit(self)
-        self.movePathLine.move(25,100)
-        self.movePathLine.resize(500,20)
-
-        #create browse button for move path
-        self.mbrowseButton = QPushButton('...',self)
-        self.mbrowseButton.setToolTip('Submit the above information')
-        self.mbrowseButton.resize(20,20)
-        self.mbrowseButton.move(525,100)
-        self.mbrowseButton.clicked.connect(lambda: self.get_Directory("Move"))
-
-        #give user the number of RAW files found in location
-        #self.findLabelJPG=QLabel('Number of Raws found at path: ', self)
-        #self.findLabelJPG.move()
-
-        """
-
-            Destination Path
-
-        """
-
-        #create label for destination path
-        self.desLabel= QLabel('Select Directory where the JPGs are Located:', self)
-        self.desLabel.move(25,140)
-
-        #create line input for user to get directory path for destination 
-        self.desPathLine=QLineEdit(self)
-        self.desPathLine.move(25,155)
-        self.desPathLine.resize(500,20)
-
-        #create browse button for destination path
-        self.mbrowseButton = QPushButton('...',self)
-        self.mbrowseButton.setToolTip('Submit the above information')
-        self.mbrowseButton.resize(20,20)
-        self.mbrowseButton.move(525,155)
-        self.mbrowseButton.clicked.connect(lambda: self.get_Directory("Des"))
-
-        #give user the number of RAW files To be moved
-        #self.findLabelJPG=QLabel('Number of Raws to be moved to destination: ', self)
-        #self.findLabelJPG.move()
-
-        """
-
             Buttons for Submiting paths and Exiting the program
 
         """
-
+        
         #create the submit button
         self.quitButton = QPushButton('Submit',self)
         self.quitButton.setToolTip('Submit the above information')
@@ -129,61 +78,39 @@ class App(QWidget):
 
         self.show()
 
-
         #function that returns the directory the user chooses
-    def get_Directory(self, text):
+    def get_Directory(self):
 
         #confirmation that the function was called
-        print("made it into the get_Directory function: "+str(text))
+        print("made it into the get_Directory function")
 
-        print (self.findLabel.text())
+        print (self.dateLabel.text())
 
-        #search for the find variable and put it into the FindPath QLineEdit
-        if(text=="Find"):
-            #adjust the find path contents, print the directory that was found
-            self.findPath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-            print (str(text)+" directory: "+self.findPath)
-            self.findPathLine.setText(self.findPath)
+        #Have the user select the file
+        self.datePath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 
-            return
+        #checks to make sure the RAW, JPG, and Highlights directories exist within the selected date, they should exist if the first script was used for organization
+        if( os.path.exists(self.datePath+"/RAW")==True and os.path.isdir(self.datePath+"/RAW")==True and
+            os.path.exists(self.datePath+"/JPG")==True and os.path.isdir(self.datePath+"/JPG")==True and
+            os.path.exists(self.datePath+"/Highlights")==True and os.path.isdir(self.datePath+"/Highlights")==True):
 
-        elif(text=="Move"):
-            #adjust the find path contents, print the directory that was found
-            self.movePath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-            print (str(text)+" directory: "+self.movePath)
-            self.movePathLine.setText(self.movePath)
+            #confirm the directory exists in the command line, update the DatePathLine with the selected path
+            print("The RAW,JPG, and Highlight directories exsist")
+            self.datePathLine.setText(self.datePath)
 
-            #send path to function to find the number of JPGs at the location
+            #add the find files, select files, and destination files variables
+            self.findPath=self.datePath+"/Highlights"
+            self.movePath=self.datePath+"/RAW"
+            self.desPath=self.datePath+"/Edits"
 
-            return
-        elif(text=="Des"):
-            #adjust the find path contents, print the directory that was found
-            self.desPath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-            print (str(text)+" directory: "+self.desPath)
-            self.desPathLine.setText(self.desPath)
+            print ( "\nFind directory: "+self.findPath+
+                    "\nMove directory: "+self.movePath+
+                    "\nDestination directory: "+self.desPath)
 
-            #send path to function to move files from move path to destination, first checking if the files are already there
-
-            return
+            #execution if the user selects the correct file type
         else:
-            #put in an error message box with message
-            print("An error has occured")
-
-    #centers the window when it is opened
-    def center(self):
-        # geometry of the main window
-        qr = self.frameGeometry()
-
-        # center point of screen
-        cp=QDesktopWidget().availableGeometry().center()
-
-        # move rectangle's center point to screen's center point
-        qr.moveCenter(cp)
-
-        # top left of rectangle becomes top left of window centering it
-        self.move(qr.topLeft())
-
-
+            print("Selection failed")
+            self.datePathLine.setText("")
 
     #command runs the program, outputing an error if paths do not have correct files
 
@@ -196,21 +123,45 @@ class App(QWidget):
         
         print ("Inside the run_command function")
 
-        #print out the paths
-        print ("Find Path: "+str(self.findPath))
-        print ("Move Path: "+str(self.movePath))
-        print ("Destination Path: "+str(self.desPath))
+        print ("DatePathLine: "+self.datePathLine.text())
 
-        #create an array of the file names in the find path (this also converts the file names to .ARW files when returned)
-        self.findFiles()
+        if( os.path.exists(self.datePathLine.text()+"/RAW")==True and os.path.isdir(self.datePathLine.text()+"/RAW")==True and
+            os.path.exists(self.datePathLine.text()+"/JPG")==True and os.path.isdir(self.datePathLine.text()+"/JPG")==True and
+            os.path.exists(self.datePathLine.text()+"/Highlights")==True and os.path.isdir(self.datePathLine.text()+"/Highlights")==True):
 
-        #go to the move path and search for the files, moving them to the final destination
-        self.moveFiles()
+            #print out the paths
+            print ("Find Path: "+str(self.findPath))
+            print ("Move Path: "+str(self.movePath))
+            print ("Destination Path: "+str(self.desPath))
+
+            #create the edits directory if it doesn't exist
+            if(os.path.exists(self.desPath)==True and os.path.isdir(self.desPath)==True):
+                #create an array of the file names in the find path (this also converts the file names to .ARW files when returned)
+                self.findFiles()
+
+                #go to the move path and search for the files, moving them to the final destination
+                self.moveFiles()
+
+            else:
+
+                #create edits directory
+                os.mkdir(self.desPath)
+
+                #create an array of the file names in the find path (this also converts the file names to .ARW files when returned)
+                self.findFiles()
+
+                #go to the move path and search for the files, moving them to the final destination
+                self.moveFiles()
+            
+        else:
+            pass
+            print ("Error found in the path name, try again")
+
 
     #creates a set with the find File path (should be the highlights folder)
 
     """
-        An error should be thrown if there are duplicate file names found, as the set function will delete them
+        #An error should be thrown if there are duplicate file names found, as the set function will delete them
     """
 
     def findFiles(self):
@@ -266,6 +217,19 @@ class App(QWidget):
         for RAW in self.moveList:
             shutil.move(self.movePath+'/'+RAW,self.desPath)
 
+    #centers the window when it is opened
+    def center(self):
+        # geometry of the main window
+        qr = self.frameGeometry()
+
+        # center point of screen
+        cp=QDesktopWidget().availableGeometry().center()
+
+        # move rectangle's center point to screen's center point
+        qr.moveCenter(cp)
+
+        # top left of rectangle becomes top left of window centering it
+        self.move(qr.topLeft())
 
 def main():
     app = QApplication(sys.argv)
