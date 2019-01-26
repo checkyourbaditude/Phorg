@@ -11,6 +11,47 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 from collections import Counter
 
+#returns an organized listg
+def organizeDirListJPG(dirList,path,pathOrg):
+
+	#creates two lists, will create a final list after iteration
+	orgList=[]
+
+	#create directories with JPGs
+
+	for image in dirList:
+		if(image.endswith(".JPG")):
+			orgList.append(image)
+			currentFileDate=getImageDate(path+'/'+image)
+
+			"""
+				Check to see if Directory is made for the file date		
+			"""
+
+			if(os.path.exists(pathOrg+'/'+currentFileDate)==True):
+				print "Directory has already been made for this date"
+
+			#make the directory and move to moving the file to the correct location
+			else:
+				print "Directory must be made for "+currentFileDate+"!"
+				createDatedDirectories(currentFileDate, pathOrg)
+
+	return orgList
+
+def organizeDirListRAW(dirList):
+
+	#creates two lists, will create a final list after iteration
+	orgList=[]
+
+	for image in dirList:
+		if(image.endswith(".ARW")):
+			orgList.append(image)
+
+
+	return orgList
+
+
+
 #checks to see if the file is still present in the Photoconsolidater folder
 def checkDirectoryExists(dirName,absFilePath):
 
@@ -134,13 +175,26 @@ def getFocalLength(image):
 
 	return focalLength
 
+#returns the file type of the image
+def getFileType(image):
+
+	if(image.endswith('.ARW')):
+		return "RAW"
+	elif(image.endswith('.JPG')):
+		return "JPG"
+
 def fileIsRaw(image):
 
 	if(image.endswith('.ARW')):
-		return True
+		return "RAW"
 	else:
 		return False
 
+"""
+	
+	Change to count File type
+
+"""
 def countRAW(dirList):
 
 	countRAW=0
@@ -148,7 +202,7 @@ def countRAW(dirList):
 	for file in dirList:
 		if (fileIsRaw(file)):
 			countRAW += 1	
-	print countRAW
+	print "Number of Raw files found: "+str(countRAW)
 
 	return countRAW;
 

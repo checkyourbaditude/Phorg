@@ -2,88 +2,153 @@
 import os
 import shutil
 
+from functions import organizeDirListJPG
+from functions import organizeDirListRAW
 from functions import checkDirectoryExists
-#from functions import checkFileExists
 from functions import createDatedDirectories
 from functions import getExifData
 from functions import getImageDate
 from functions import getFocalLength
 from functions import fileIsRaw
 from functions import countRAW
+from functions import getFileType
 
-import mysql.connector
+def OrganizePhotos():
 
+	#variables for the program to work properly
+	fileName='unorganized'
+	absFilePath='C:/Users/Chris/Desktop/Phorg/unorganized'
+	absFilePathOrg='C:/Users/Chris/Desktop/Phorg/organized'
+	dirListJPG=organizeDirListJPG(os.listdir(absFilePath), absFilePath, absFilePathOrg)
+	dirListRAW=organizeDirListRAW(os.listdir(absFilePath))
+	numPhotos=len(dirListJPG+dirListRAW)
+	counter=0
 
-#variables for the program to work properly
-fileName='unorganized'
-absFilePath='C:/Users/Chris/Desktop/Phorg/unorganized'
-absFilePathOrg='C:/Users/Chris/Desktop/Phorg/organized'
-dirList=os.listdir(fileName)
-numPhotos=len(dirList)
-numPhotosRAW=countRAW(dirList)
-counter=0
-counterRAW=0
+	#check to see if the organized folder has been created
+	if(os.path.exists(absFilePathOrg)==True and os.path.isdir(absFilePathOrg)==True):
 
-#check to see if the organized folder has been created
-if(os.path.exists(absFilePathOrg)==True and os.path.isdir(absFilePathOrg)==True):
+		#change the working directory to the file path
+		os.chdir(absFilePath)
 
-	#print checkDirectoryExists(absFilePath,fileName)
+		#while loop to organize all of the JPG Files, create all relevant directories, and files
+		while(numPhotos>counter):
 
-	os.chdir(absFilePath)
+			#store the current file date
+			currentFileDate=getImageDate(dirListJPG[counter])
 
-	#print "File Name\t\t"+"Date"
+			#create function to return file type, branching
+			print "\n\n"+dirListJPG[counter]+":\t\t "+currentFileDate
+			print "The file type of "+dirListJPG[counter]+" is "+getFileType(dirListJPG[counter])
 
-	#while loop to organize all of the JPG Files, create all relevant directories, and files
-	while(numPhotos>counter):
+			"""
+				Moves the file to the correct location
+			"""
 
-		#check if the file is RAW of JPG
-		if(fileIsRaw(dirList[counter])==False):
-			
-			#get the date of the file being processed in the loop
-			currentFileDate=getImageDate(dirList[counter])
-			print "\n\n"+dirList[counter]+":\t\t "+currentFileDate
+			#moves the current file to from the unorganized folder to the organized folder in the JPG section
+			shutil.move(absFilePath+'/'+dirListJPG[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
+			print "file "+dirListJPG[counter]+" has been moved"
 
-			#check if a directory exists with the date
-			if(checkDirectoryExists(currentFileDate, absFilePathOrg)==False):
-				print "Directory has not yet been made!"
+			#check to see if the raw file exists
+			#if it exists, find the RAW file with the same name and move it to the new folder in the same location
+			fileNameRAW=dirListJPG[counter]
+			fileNameRAW=fileNameRAW[:-4]+'.ARW'
 
-				#create new directory
-				createDatedDirectories(currentFileDate, absFilePathOrg)
-
-				#move JPG file to the new directory
-				print "file "+dirList[counter]+" has been moved"
-
-				#moves the current file to from the unorganized folder to the organized folder in the JPG section
-				shutil.move(absFilePath+'/'+dirList[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
-
-				#find the RAW file with the same name and move it to the new folder in the same location
-				fileNameRAW=dirList[counter]
-				fileNameRAW=fileNameRAW[:-4]+'.ARW'
+			if(os.path.isfile(absFilePath+'/'+fileNameRAW)==True):
+				print "A corresponding raw file was found for "+str(dirListJPG[counter])
 
 				#moves the current file to from the unorganized folder to the organized folder in the RAW section
 				shutil.move(absFilePath+'/'+fileNameRAW,absFilePathOrg+'/'+currentFileDate+'/RAW')
-
-				#move JPG file to the new directory
-				print "file "+fileNameRAW+" has been moved"
+				print str(fileNameRAW)+ "has been moved"
 
 			else:
-				print"Directory has already been made"
 
-				#Move JPG to the already created folder
-				shutil.move(absFilePath+'/'+dirList[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
+				print "No corresponding file name found for "+str(dirListJPG)
 
-				#find the RAW file with the same name and move it to the new folder in the same location
-				fileNameRAW=dirList[counter]
-				fileNameRAW=fileNameRAW[:-4]+'.ARW'
 
-				#moves the current file to from the unorganized folder to the organized folder in the RAW section
-				shutil.move(absFilePath+'/'+fileNameRAW,absFilePathOrg+'/'+currentFileDate+'/RAW')
 
-		counter+=1
+			"""
+				Iterate the counter, make a fail check the failsafe
+			"""
 
-		#fail safe
-		if(counter>numPhotos):
-			break
+			counter+=1
 
-else:
-	print "Error in initialing program"
+			#fail safe
+			if(counter>numPhotos):
+				break
+
+	else:
+
+		"""
+			Put Error Message here
+		"""
+
+		print "Error in initialing program"
+
+#run after imported
+if __name__=="__main__":
+	OrganizePhotos()
+
+"""
+			#check if the file is RAW of JPG
+			if(fileIsRaw(dirList[counter])==False):
+				
+				#get the date of the file being processed in the loop
+				currentFileDate=getImageDate(dirList[counter])
+				print "\n\n"+dirList[counter]+":\t\t "+currentFileDate
+
+				#check if a directory exists with the date
+				if(checkDirectoryExists(currentFileDate, absFilePathOrg)==False):
+					print "Directory has not yet been made!"
+
+					#create new directory
+					createDatedDirectories(currentFileDate, absFilePathOrg)
+
+					#move JPG file to the new directory
+					print "file "+dirList[counter]+" has been moved"
+
+					#moves the current file to from the unorganized folder to the organized folder in the JPG section
+					shutil.move(absFilePath+'/'+dirList[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
+
+					#if it exists, find the RAW file with the same name and move it to the new folder in the same location
+					fileNameRAW=dirList[counter]
+					fileNameRAW=fileNameRAW[:-4]+'.ARW'
+
+					if(os.path.isfile(fileNameRAW)==True):
+						#moves the current file to from the unorganized folder to the organized folder in the RAW section
+						shutil.move(absFilePath+'/'+fileNameRAW,absFilePathOrg+'/'+currentFileDate+'/RAW')
+
+
+					#move JPG file to the new directory
+					print "file "+fileNameRAW+" has been moved"
+
+				else:
+					print"Directory has already been made"
+
+					#Move JPG to the already created folder
+					shutil.move(absFilePath+'/'+dirList[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
+
+					#if it exists, find the RAW file with the same name and move it to the new folder in the same location
+					fileNameRAW=dirList[counter]
+					fileNameRAW=fileNameRAW[:-4]+'.ARW'
+
+					if(os.path.isfile(fileNameRAW)==True):
+						#moves the current file to from the unorganized folder to the organized folder in the RAW section
+						shutil.move(absFilePath+'/'+fileNameRAW,absFilePathOrg+'/'+currentFileDate+'/RAW')
+
+			counter+=1
+
+			#fail safe
+			if(counter>numPhotos):
+				break
+
+	else:
+
+
+			#Put Error Message here
+
+
+		print "Error in initialing program"
+
+#run after imported
+if __name__=="__main__":
+	OrganizePhotos()"""

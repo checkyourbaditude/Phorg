@@ -6,6 +6,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+from Driver import OrganizePhotos
+
+import mysql.connector
 from PyQt4 import QtCore, QtGui
 
 try:
@@ -21,6 +24,12 @@ try:
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
+#connect to the database
+db = mysql.connector.connect(host="localhost",
+                             user="root",
+                             password="password",
+                             db="PhotoData")
 
 class Ui_TabWidget(object):
     def setupUi(self, TabWidget):
@@ -63,6 +72,11 @@ class Ui_TabWidget(object):
         self.statTab.setObjectName(_fromUtf8("statTab"))
         TabWidget.addTab(self.statTab, _fromUtf8(""))
 
+        """
+            Putting my own code into this
+        """
+        self.organizeButton.clicked.connect(self.organizePhotos)
+
         self.retranslateUi(TabWidget)
         TabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(TabWidget)
@@ -79,6 +93,15 @@ class Ui_TabWidget(object):
         TabWidget.setTabText(TabWidget.indexOf(self.SelectionTab), _translate("TabWidget", "Select", None))
         TabWidget.setTabText(TabWidget.indexOf(self.statTab), _translate("TabWidget", "Statistics", None))
 
+    #wants to run the organize script when the organize button is pushed
+    def organizePhotos(self):
+
+        """
+            Put a window asking if you are sure
+        """
+
+        OrganizePhotos()
+
 
 if __name__ == "__main__":
     import sys
@@ -87,5 +110,6 @@ if __name__ == "__main__":
     ui = Ui_TabWidget()
     ui.setupUi(TabWidget)
     TabWidget.show()
+    db.close()
     sys.exit(app.exec_())
 
