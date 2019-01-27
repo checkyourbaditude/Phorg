@@ -6,10 +6,14 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from Driver import OrganizePhotos
-
+import os
+import sys
 import mysql.connector
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtGui import QFileDialog
+
+from OrganizeScript import OrganizePhotos
+from SelectScript import SelectPhotos
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -73,9 +77,21 @@ class Ui_TabWidget(object):
         TabWidget.addTab(self.statTab, _fromUtf8(""))
 
         """
-            Putting my own code into this
+            Organize Script
         """
+
+        #runs the Organize script
         self.organizeButton.clicked.connect(self.organizePhotos)
+
+        """
+            Select Script
+        """
+
+        #Find the correct date directory
+        self.findDateButton.clicked.connect(lambda: self.get_Directory())
+
+        #run the Select Script
+        self.selectButton.clicked.connect(lambda: self.selectPhotos())
 
         self.retranslateUi(TabWidget)
         TabWidget.setCurrentIndex(2)
@@ -93,7 +109,11 @@ class Ui_TabWidget(object):
         TabWidget.setTabText(TabWidget.indexOf(self.SelectionTab), _translate("TabWidget", "Select", None))
         TabWidget.setTabText(TabWidget.indexOf(self.statTab), _translate("TabWidget", "Statistics", None))
 
-    #wants to run the organize script when the organize button is pushed
+    """
+        Runs the Organize script to organize the photos in the unorganized folder
+        wants to run the organize script when the organize button is pushed
+    """
+
     def organizePhotos(self):
 
         """
@@ -103,8 +123,48 @@ class Ui_TabWidget(object):
         OrganizePhotos()
 
 
+    def selectPhotos(self):
+
+        """
+            Put a window asking if you are sure
+        """
+
+        SelectPhotos(self.datePath)
+
+    def get_Directory(self):
+
+        #confirmation that the function was called
+        print("made it into the get_Directory function")
+
+        #not sure why this is here
+        #print (self.dateLabel.text())
+
+        #Have the user select the file
+        self.datePath = str(QFileDialog.getExistingDirectory())
+
+        print "The directory chosen is: "+str(self.datePath)
+
+        #checks to make sure the RAW, JPG, and Highlights directories exist within the selected date, they should exist if the first script was used for organization
+        if( os.path.exists(self.datePath+"/RAW")==True and os.path.isdir(self.datePath+"/RAW")==True and
+            os.path.exists(self.datePath+"/JPG")==True and os.path.isdir(self.datePath+"/JPG")==True and
+            os.path.exists(self.datePath+"/Highlights")==True and os.path.isdir(self.datePath+"/Highlights")==True):
+
+            #confirm the directory exists in the command line, update the DatePathLine with the selected path
+            print("The RAW, JPG, and Highlight directories exsist")
+            self.selectLineEdit.setText(self.datePath)
+
+        #execution if the user selects the incorrect file type
+        else:
+
+            """
+                Put error message here
+            """
+
+            print("Selection failed, must choose folder organized by ORGANIZE SCRIPT")
+            self.selectLineEdit.setText("")
+
+
 if __name__ == "__main__":
-    import sys
     app = QtGui.QApplication(sys.argv)
     TabWidget = QtGui.QTabWidget()
     ui = Ui_TabWidget()

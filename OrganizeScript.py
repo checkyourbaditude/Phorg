@@ -21,7 +21,7 @@ def OrganizePhotos():
 	absFilePathOrg='C:/Users/Chris/Desktop/Phorg/organized'
 	dirListJPG=organizeDirListJPG(os.listdir(absFilePath), absFilePath, absFilePathOrg)
 	dirListRAW=organizeDirListRAW(os.listdir(absFilePath))
-	numPhotos=len(dirListJPG+dirListRAW)
+	numPhotos=len(dirListJPG)
 	counter=0
 
 	#check to see if the organized folder has been created
