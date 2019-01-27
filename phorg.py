@@ -5,7 +5,6 @@
 # Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
-
 import os
 import sys
 import mysql.connector
@@ -14,6 +13,7 @@ from PyQt4.QtGui import QFileDialog
 
 from OrganizeScript import OrganizePhotos
 from SelectScript import SelectPhotos
+from StatisticsScript import updateDatabase
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -29,16 +29,10 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-#connect to the database
-db = mysql.connector.connect(host="localhost",
-                             user="root",
-                             password="password",
-                             db="PhotoData")
-
 class Ui_TabWidget(object):
     def setupUi(self, TabWidget):
         TabWidget.setObjectName(_fromUtf8("TabWidget"))
-        TabWidget.resize(360, 258)
+        TabWidget.resize(391, 258)
         self.OrganizeTab = QtGui.QWidget()
         self.OrganizeTab.setObjectName(_fromUtf8("OrganizeTab"))
         self.verticalLayout = QtGui.QVBoxLayout(self.OrganizeTab)
@@ -74,13 +68,17 @@ class Ui_TabWidget(object):
         TabWidget.addTab(self.SelectionTab, _fromUtf8(""))
         self.statTab = QtGui.QWidget()
         self.statTab.setObjectName(_fromUtf8("statTab"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.statTab)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.statButton = QtGui.QPushButton(self.statTab)
+        self.statButton.setObjectName(_fromUtf8("statButton"))
+        self.verticalLayout_2.addWidget(self.statButton)
         TabWidget.addTab(self.statTab, _fromUtf8(""))
 
         """
             Organize Script
         """
 
-        #runs the Organize script
         self.organizeButton.clicked.connect(self.organizePhotos)
 
         """
@@ -92,6 +90,12 @@ class Ui_TabWidget(object):
 
         #run the Select Script
         self.selectButton.clicked.connect(lambda: self.selectPhotos())
+
+        """
+            Statistics Script
+        """
+
+        self.statButton.clicked.connect(lambda: self.statPhotos())
 
         self.retranslateUi(TabWidget)
         TabWidget.setCurrentIndex(2)
@@ -107,12 +111,8 @@ class Ui_TabWidget(object):
         self.selectLabel_2.setText(_translate("TabWidget", "Use the button on the right to select the file path, or enter it manually below", None))
         self.findDateButton.setText(_translate("TabWidget", "...", None))
         TabWidget.setTabText(TabWidget.indexOf(self.SelectionTab), _translate("TabWidget", "Select", None))
+        self.statButton.setText(_translate("TabWidget", "UpdateDatabase", None))
         TabWidget.setTabText(TabWidget.indexOf(self.statTab), _translate("TabWidget", "Statistics", None))
-
-    """
-        Runs the Organize script to organize the photos in the unorganized folder
-        wants to run the organize script when the organize button is pushed
-    """
 
     def organizePhotos(self):
 
@@ -130,6 +130,14 @@ class Ui_TabWidget(object):
         """
 
         SelectPhotos(self.datePath)
+
+    def statPhotos(self):
+
+        """
+            Put a window asking if you are sure
+        """
+
+        updateDatabase()
 
     def get_Directory(self):
 
@@ -170,6 +178,5 @@ if __name__ == "__main__":
     ui = Ui_TabWidget()
     ui.setupUi(TabWidget)
     TabWidget.show()
-    db.close()
     sys.exit(app.exec_())
 

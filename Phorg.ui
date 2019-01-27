@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
+    <width>391</width>
     <height>258</height>
    </rect>
   </property>
@@ -85,6 +85,15 @@
    <attribute name="title">
     <string>Statistics</string>
    </attribute>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QPushButton" name="statButton">
+      <property name="text">
+       <string>UpdateDatabase</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

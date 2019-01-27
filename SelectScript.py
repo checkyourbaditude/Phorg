@@ -1,3 +1,11 @@
+"""
+    This Script is meant to be used after the OrganizeScript has already been run and the photographer has moved their Favorite JPGS
+    from the JPG folder into the Highlights folder.
+
+    This script finds the corresponding Raw files to the JPGs in the highlights folder, then creates another folder called edits,
+    then moves the RAW files into the edits folder
+"""
+
 import os
 import sys
 import shutil

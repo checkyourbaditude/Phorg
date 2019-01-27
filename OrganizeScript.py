@@ -1,4 +1,7 @@
-#import
+"""
+	This Script takes all of the JPGs and .ARW files in the unorganized file and organizes them by month, date, and file type
+"""
+
 import os
 import shutil
 
@@ -87,68 +90,3 @@ def OrganizePhotos():
 #run after imported
 if __name__=="__main__":
 	OrganizePhotos()
-
-"""
-			#check if the file is RAW of JPG
-			if(fileIsRaw(dirList[counter])==False):
-				
-				#get the date of the file being processed in the loop
-				currentFileDate=getImageDate(dirList[counter])
-				print "\n\n"+dirList[counter]+":\t\t "+currentFileDate
-
-				#check if a directory exists with the date
-				if(checkDirectoryExists(currentFileDate, absFilePathOrg)==False):
-					print "Directory has not yet been made!"
-
-					#create new directory
-					createDatedDirectories(currentFileDate, absFilePathOrg)
-
-					#move JPG file to the new directory
-					print "file "+dirList[counter]+" has been moved"
-
-					#moves the current file to from the unorganized folder to the organized folder in the JPG section
-					shutil.move(absFilePath+'/'+dirList[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
-
-					#if it exists, find the RAW file with the same name and move it to the new folder in the same location
-					fileNameRAW=dirList[counter]
-					fileNameRAW=fileNameRAW[:-4]+'.ARW'
-
-					if(os.path.isfile(fileNameRAW)==True):
-						#moves the current file to from the unorganized folder to the organized folder in the RAW section
-						shutil.move(absFilePath+'/'+fileNameRAW,absFilePathOrg+'/'+currentFileDate+'/RAW')
-
-
-					#move JPG file to the new directory
-					print "file "+fileNameRAW+" has been moved"
-
-				else:
-					print"Directory has already been made"
-
-					#Move JPG to the already created folder
-					shutil.move(absFilePath+'/'+dirList[counter],absFilePathOrg+'/'+currentFileDate+'/JPG')
-
-					#if it exists, find the RAW file with the same name and move it to the new folder in the same location
-					fileNameRAW=dirList[counter]
-					fileNameRAW=fileNameRAW[:-4]+'.ARW'
-
-					if(os.path.isfile(fileNameRAW)==True):
-						#moves the current file to from the unorganized folder to the organized folder in the RAW section
-						shutil.move(absFilePath+'/'+fileNameRAW,absFilePathOrg+'/'+currentFileDate+'/RAW')
-
-			counter+=1
-
-			#fail safe
-			if(counter>numPhotos):
-				break
-
-	else:
-
-
-			#Put Error Message here
-
-
-		print "Error in initialing program"
-
-#run after imported
-if __name__=="__main__":
-	OrganizePhotos()"""

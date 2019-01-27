@@ -1,7 +1,5 @@
-# This file contains all the functions for the script to run properly
+# This file contains all the functions for the OrganizeScript to run properly
 
-
-# imports
 import os
 import sys
 import PIL
@@ -205,40 +203,3 @@ def countRAW(dirList):
 	print "Number of Raw files found: "+str(countRAW)
 
 	return countRAW;
-
-
-"""	
-def checkFileExists(fileName,absFilePath):
-
-	#checks to see if the path still exists
-	if (os.path.exists(absFilePath)):
-		print "Found file"
-		return True
-	
-	else:
-		print "failed to find file"
-		return Talse
-		"""
-
-# Simple function that counts the number of photos in the file name
-#def countPhoto(dirList):
-
-	#local variables to run the function
-	#countJPG = 0;
-	#countRAW = 0;
-	#number_files = len(dirList)
-
-	#print "The total number of photos is: ", number_files
-
-	#continue by counting the raw and jpg files seperately
-	#for file in dirList:
-		#print file
-		#if (file.endswith('.JPG')):
-			#countJPG += 1
-		#if (file.endswith('.ARW')):
-			#countRAW += 1
-
-	#print "Number of JPG files: ", countJPG
-	#print "Number of RAW files: ", countRAW	
-
-	#return number_files;	
