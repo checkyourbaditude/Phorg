@@ -5,9 +5,9 @@
 # Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
+
 import os
 import sys
-import mysql.connector
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog
 
