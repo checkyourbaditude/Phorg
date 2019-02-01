@@ -3,6 +3,7 @@
 	I would also like the script to eventually be used to update the database in case some things have changed with the past dates stored in the database
 """
 
+import os
 import mysql.connector
 from mysql.connector import errorcode
 from PIL import Image
@@ -19,9 +20,64 @@ def updateDatabase():
 	"""
 		Organize data by date, make list of objects per date
 	"""
+
+	#The top of the photo directory, this is going to have to be dynamically passed into the program through a box in the user UI
+	photoDirectory='C:/Users/Chris/Desktop/wrk/'
+	directoryDates=os.listdir(photoDirectory)
+
+	"""
+	#create a list of objects to be added to database
+
+	insertList={}
+
+	#create the years list
+	yearsList=os.listDir(photoDirectory)
+
+	for year in yearsList:
+
+		print "Entering year: "+str(year)
+
+		#create the sub month list
+		monthsList=os.listDir(photoDirectory+'/'+year)
+
+		for month in monthsList:
+
+			print "Entering month: "+str(month)
+
+			#create the day list
+			dayList=os.listDir(photoDirectory+'/'+year+'/'+month)
+
+			for day in dayList:
+	
+				print "Entering Day: "+str(day)
+
+				# loop through the photos in Highlights, and JPGS accessing exif data
+				# check if edits file exists after testing
+				if(	os.path.exists(photoDirectory+'/'+year+'/'+month+'/'+day)==True and
+					os.path.exists(photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights')==True and
+					os.path.exists(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')==True and
+				   	os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day)==True and
+				   	os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights')==True and
+					os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')==True and):
+				   	#do something if the directories exist
+					
+					insertList
+
+				else:
+					print "The file structure is incorrect, please make sure the Phorg application is being used correctly"
+					sys.exit()
+
+	"""
+
+	print "The Directory list is: "+str(directoryDates)
+
 	
 	#begin working with the images here
-	photoData('DSC00225','C:/Users/Chris/Desktop/wrk/test/DSC00225.JPG')
+	data1=photoData('DSC07943','C:/Users/Chris/Desktop/wrk/2019/01 Jan/04 Jan 2019/Highlights/DSC07943.JPG')
+	data2=photoData('DSC08252','C:/Users/Chris/Desktop/wrk/2019/01 Jan/19 Jan 2019/Highlights/DSC08252.JPG')
+
+	for attr, value in data1.__dict__.items():
+		print attr+": "+value
 
 
 #function that opens the database
@@ -59,34 +115,109 @@ class photoData:
 
 	def getExifData(self,image):
 
-		ret = {}
+		#self.ret = {}
 		i = Image.open(image)
 		info = i._getexif()
 
 		print "Photo EXIF data: "
 
+		#insert the file name and path in the object file
+		#self.ret['File Name']=self.imageName
+		#self.ret['File Path']=self.imagePath
+
+		#loop through the exif data of the image, keeping the information then formatting it properly
 		for tag, value in info.items():
 
 			decoded=str(TAGS.get(tag, tag))
 
-			#exclusions on exif data
-			if(	decoded=='ISOSpeedRatings' or
-			    decoded=='ExposureTime' or
-			    decoded=='FNumber'or
-				decoded=='FocalLength'or
-				decoded=='BrightnessValue'or
-				decoded=='LensModel'or
-				decoded=='Make'or
-				decoded=='Model'or
-				decoded=='LensModel'or
-				decoded=='DateTime'):
+			#inclusions of EXIF data, and reformating of the data
+			if(	decoded=='ISOSpeedRatings' or 
+				decoded=='LensModel' or 
+				decoded=='Make' or 
+				decoded=='Model'):
 
-				ret[decoded]=str(value)
+				#Insert the data and print notification
+				#print "Found "+str(decoded)+" data"
+				#self.ret[decoded]=str(value)
+				self.decoded=str(newValue)
 
-		for data in ret:
-			print "\t"+str(data)+": "+str(ret[data])+"\n"
+			elif(decoded=='ExposureTime'):
 
-		#return ret
+				#needs to be formatted with a regular expression
+				#value=str(value)
+				#newValue=value[value.find("(")+1:value.find(",")]+"/"+value[value.find(",")+2:value.find(")")]
+				#self.ret[decoded]=str(newValue)
+
+				#format the data
+				print "Found ExposureTime data: "+newValue
+				self.decoded=str(newValue)
+
+			elif(decoded=="FNumber"):
+
+				#format the data
+				print "Found FNumber data"
+
+				#needs to be formatted with a regular expression
+				value=str(value)
+				newValue=value[value.find("(")+1:value.find(",")]
+
+				#print "String length: "+str(len(newValue))
+
+				#format string properly
+				if(len(newValue)==2):
+					#newValue=newValue[0]+"."+newValue[1]
+					print "New Value with peroid: "+str(newValue)
+				else:
+					#newValue=newValue[0:(len(newValue)-1)]+"."+newValue[len(newValue)-1]
+					print "New Value with peroid: "
+ 
+				#self.ret[decoded]=str(newValue)
+				self.decoded=str(newValue)
+
+			elif(decoded=='FocalLength'):
+
+				#format the data
+				print "Found FocalLength data"
+
+				#pull the value so its formatted properly
+				value=str(value)
+				newValue=value[value.find("(")+1:(value.find(",")-1)]
+
+				#needs to be formatted with a regular expression
+				#self.ret[decoded]=str(newValue)
+				self.decoded=str(newValue)
+
+			elif(decoded=='BrightnessValue'):
+
+				#format the data
+				print "Found BrightnessValue data"
+
+				#format the data
+				value=str(value)
+				newValue=float(value[value.find("(")+1:(value.find(","))])/float(value[value.find(",")+2:value.find(")")])
+
+				#probably should be formatted in some way
+				#self.ret[decoded]=str(newValue)
+				self.decoded=str(newValue)
+
+			elif(decoded=='DateTime'):
+
+				#format the data
+				print "Found DateTime data"
+
+				#need to seperate the day, month, and year values
+				#self.ret['Day']=	''.join(value[8:10])
+				#self.ret['Month']=	''.join(value[5:7])
+				#self.ret['Year']=	''.join(value[0:4])
+
+				self.Year=		''.join(value[0:4])
+				self.Month=		''.join(value[5:7])
+				self.Day=		''.join(value[8:10])
+
+		#print the results
+		#for data in self.ret:
+			#print "\t"+str(data)+": "+str(self.ret[data])+"\n"
+
 
 
 #run after imported
