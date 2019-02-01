@@ -76,8 +76,10 @@ def updateDatabase():
 	data1=photoData('DSC07943','C:/Users/Chris/Desktop/wrk/2019/01 Jan/04 Jan 2019/Highlights/DSC07943.JPG')
 	data2=photoData('DSC08252','C:/Users/Chris/Desktop/wrk/2019/01 Jan/19 Jan 2019/Highlights/DSC08252.JPG')
 
-	for attr, value in data1.__dict__.items():
-		print attr+": "+value
+	#print getattr(data1,'Year')
+
+	#for attr, value in data1.__dict__.items():
+		#print attr+": "+value
 
 
 #function that opens the database
@@ -131,92 +133,45 @@ class photoData:
 			decoded=str(TAGS.get(tag, tag))
 
 			#inclusions of EXIF data, and reformating of the data
-			if(	decoded=='ISOSpeedRatings' or 
-				decoded=='LensModel' or 
-				decoded=='Make' or 
-				decoded=='Model'):
-
-				#Insert the data and print notification
-				#print "Found "+str(decoded)+" data"
-				#self.ret[decoded]=str(value)
-				self.decoded=str(newValue)
-
+			if(	decoded=='ISOSpeedRatings'): self.ISOSpeedRatings=str(newValue)
+			elif(decoded=='LensModel'): self.LensModel=str(newValue)
+			elif(decoded=='Make'): self.Make=str(newValue)
+			elif(decoded=='Model'): self.Model=str(newValue)
 			elif(decoded=='ExposureTime'):
 
-				#needs to be formatted with a regular expression
-				#value=str(value)
-				#newValue=value[value.find("(")+1:value.find(",")]+"/"+value[value.find(",")+2:value.find(")")]
-				#self.ret[decoded]=str(newValue)
-
-				#format the data
-				print "Found ExposureTime data: "+newValue
-				self.decoded=str(newValue)
+				value=str(value)
+				newValue=value[value.find("(")+1:value.find(",")]+"/"+value[value.find(",")+2:value.find(")")]
+				self.ExposureTime=str(newValue)
 
 			elif(decoded=="FNumber"):
 
-				#format the data
-				print "Found FNumber data"
-
-				#needs to be formatted with a regular expression
 				value=str(value)
 				newValue=value[value.find("(")+1:value.find(",")]
 
-				#print "String length: "+str(len(newValue))
-
-				#format string properly
 				if(len(newValue)==2):
-					#newValue=newValue[0]+"."+newValue[1]
-					print "New Value with peroid: "+str(newValue)
+					newValue=newValue[0]+"."+newValue[1]
 				else:
-					#newValue=newValue[0:(len(newValue)-1)]+"."+newValue[len(newValue)-1]
-					print "New Value with peroid: "
+					newValue=newValue[0:(len(newValue)-1)]+"."+newValue[len(newValue)-1]
  
-				#self.ret[decoded]=str(newValue)
-				self.decoded=str(newValue)
+				self.FNumber=str(newValue)
 
 			elif(decoded=='FocalLength'):
 
-				#format the data
-				print "Found FocalLength data"
-
-				#pull the value so its formatted properly
 				value=str(value)
 				newValue=value[value.find("(")+1:(value.find(",")-1)]
-
-				#needs to be formatted with a regular expression
-				#self.ret[decoded]=str(newValue)
-				self.decoded=str(newValue)
+				self.FocalLength=str(newValue)
 
 			elif(decoded=='BrightnessValue'):
 
-				#format the data
-				print "Found BrightnessValue data"
-
-				#format the data
 				value=str(value)
 				newValue=float(value[value.find("(")+1:(value.find(","))])/float(value[value.find(",")+2:value.find(")")])
-
-				#probably should be formatted in some way
-				#self.ret[decoded]=str(newValue)
-				self.decoded=str(newValue)
+				self.BrightnessValue=str(newValue)
 
 			elif(decoded=='DateTime'):
-
-				#format the data
-				print "Found DateTime data"
-
-				#need to seperate the day, month, and year values
-				#self.ret['Day']=	''.join(value[8:10])
-				#self.ret['Month']=	''.join(value[5:7])
-				#self.ret['Year']=	''.join(value[0:4])
 
 				self.Year=		''.join(value[0:4])
 				self.Month=		''.join(value[5:7])
 				self.Day=		''.join(value[8:10])
-
-		#print the results
-		#for data in self.ret:
-			#print "\t"+str(data)+": "+str(self.ret[data])+"\n"
 
 
 
