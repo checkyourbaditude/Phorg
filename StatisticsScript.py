@@ -22,30 +22,34 @@ def updateDatabase():
 	"""
 
 	#The top of the photo directory, this is going to have to be dynamically passed into the program through a box in the user UI
-	photoDirectory='C:/Users/Chris/Desktop/wrk/'
-	directoryDates=os.listdir(photoDirectory)
-
-	"""
+	photoDirectory='C:/Users/Chris/Desktop/wrk'
 	#create a list of objects to be added to database
 
-	insertList={}
+	insertList=[]
+
+	'''
+	data1=photoData('DSC07943','C:/Users/Chris/Desktop/wrk/2019/01 Jan/04 Jan 2019/Highlights/DSC07943.JPG')
+	data2=photoData('DSC08252','C:/Users/Chris/Desktop/wrk/2019/01 Jan/19 Jan 2019/Highlights/DSC08252.JPG')
+	for attr, value in data1.__dict__.items():
+			print str(attr)+": "+str(value)	
+		'''
 
 	#create the years list
-	yearsList=os.listDir(photoDirectory)
+	yearsList=os.listdir(photoDirectory)
 
 	for year in yearsList:
 
 		print "Entering year: "+str(year)
 
 		#create the sub month list
-		monthsList=os.listDir(photoDirectory+'/'+year)
+		monthsList=os.listdir(photoDirectory+'/'+year)
 
 		for month in monthsList:
 
 			print "Entering month: "+str(month)
 
 			#create the day list
-			dayList=os.listDir(photoDirectory+'/'+year+'/'+month)
+			dayList=os.listdir(photoDirectory+'/'+year+'/'+month)
 
 			for day in dayList:
 	
@@ -58,28 +62,42 @@ def updateDatabase():
 					os.path.exists(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')==True and
 				   	os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day)==True and
 				   	os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights')==True and
-					os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')==True and):
+					os.path.isdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')==True):
+
 				   	#do something if the directories exist
-					
-					insertList
+					print "The highlights, JPG, and date have been found!"
 
-				else:
-					print "The file structure is incorrect, please make sure the Phorg application is being used correctly"
-					sys.exit()
+					#navigate to the highlights folder and get the data from the photos inside
+					os.chdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights')
+					photoDirList=os.listdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights')
 
-	"""
+					for photo in photoDirList:
+						#do I need to pass the path every time?
+						#print str(photo)
+						#print str(photo[:-4])
 
-	print "The Directory list is: "+str(directoryDates)
+						insertList.append(photoData(photo[:-4],photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights/'+photo))
 
-	
-	#begin working with the images here
-	data1=photoData('DSC07943','C:/Users/Chris/Desktop/wrk/2019/01 Jan/04 Jan 2019/Highlights/DSC07943.JPG')
-	data2=photoData('DSC08252','C:/Users/Chris/Desktop/wrk/2019/01 Jan/19 Jan 2019/Highlights/DSC08252.JPG')
+					#move to the JPG folder and do the same thing as above
+					os.chdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')
+					photoDirList=os.listdir(photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG')
 
-	#print getattr(data1,'Year')
+					for photo in photoDirList:
 
-	#for attr, value in data1.__dict__.items():
-		#print attr+": "+value
+						insertList.append(photoData(photo[:-4],photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG/'+photo))
+
+
+				#else:
+					#print "The file structure is incorrect, please make sure the Phorg application is being used correctly"
+					#sys.exit()
+
+	#Print out the list of objects to be inserted
+	for object in insertList:
+		print "\n"
+		for attr, value in object.__dict__.items():
+			print str(attr)+": "+str(value)
+			
+
 
 
 #function that opens the database
@@ -112,6 +130,8 @@ class photoData:
 		#initialize the image name and path as an attbribute of the object
 		self.imageName=imageName
 		self.imagePath=imagePath
+		self.isHighlight=0
+		self.isGallery=0
 
 		self.getExifData(imagePath)
 
@@ -121,22 +141,16 @@ class photoData:
 		i = Image.open(image)
 		info = i._getexif()
 
-		print "Photo EXIF data: "
-
-		#insert the file name and path in the object file
-		#self.ret['File Name']=self.imageName
-		#self.ret['File Path']=self.imagePath
-
 		#loop through the exif data of the image, keeping the information then formatting it properly
 		for tag, value in info.items():
 
 			decoded=str(TAGS.get(tag, tag))
 
 			#inclusions of EXIF data, and reformating of the data
-			if(	decoded=='ISOSpeedRatings'): self.ISOSpeedRatings=str(newValue)
-			elif(decoded=='LensModel'): self.LensModel=str(newValue)
-			elif(decoded=='Make'): self.Make=str(newValue)
-			elif(decoded=='Model'): self.Model=str(newValue)
+			if(	decoded=='ISOSpeedRatings'): self.ISOSpeedRatings=str(value)
+			elif(decoded=='LensModel'): self.LensModel=str(value)
+			elif(decoded=='Make'): self.Make=str(value)
+			elif(decoded=='Model'): self.Model=str(value)
 			elif(decoded=='ExposureTime'):
 
 				value=str(value)
@@ -173,6 +187,16 @@ class photoData:
 				self.Month=		''.join(value[5:7])
 				self.Day=		''.join(value[8:10])
 
+		#figure out if the photo is a highlight and in the gallery
+		self.Highlight()
+		#self.Gallery()
+
+	def Highlight(self):
+
+		if(os.path.exists(self.imagePath)==True and ('Hightlights' in self.imagePath)):
+			self.isHighlight=1
+		else:
+			self.isHightlight=0
 
 
 #run after imported
