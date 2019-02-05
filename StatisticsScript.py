@@ -19,16 +19,14 @@ def updateDatabase():
 	"""
 
 	#The top of the photo directory, this is going to have to be dynamically passed into the program through a box in the user UI
-	photoDirectory='C:/Users/Chris/Desktop/wrk'
+	photoDirectory='C:/Users/Chris/Desktop/Phorg/Organized'
 
 	#create a list of objects to be added to database
 	insertList=[]
 	
-	insertList.append(photoData('DSC06287','C:/Users/Chris/Desktop/Phorg/organized/2018/11 November/17 Nov 2018/Highlights/DSC06287.JPG'))
+	#insertList.append(photoData('DSC06287','C:/Users/Chris/Desktop/Phorg/organized/2018/11 November/17 Nov 2018/Highlights/DSC06287.JPG'))
 	#for attr, value in data1.__dict__.items():
 			#print str(attr)+": "+str(value)
-	
-	"""
 
 	#create the years list
 	yearsList=os.listdir(photoDirectory)
@@ -80,13 +78,16 @@ def updateDatabase():
 
 					for photo in photoDirList:
 
-						insertList.append(photoData(photo[:-4],photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG/'+photo))
+						#don't pas duplicate data
+						if(os.path.exists(photoDirectory+'/'+year+'/'+month+'/'+day+'/Highlights/'+photo)==True): pass
+						else: insertList.append(photoData(photo[:-4],photoDirectory+'/'+year+'/'+month+'/'+day+'/JPG/'+photo))
 
 
 				#else:
 					#print "The file structure is incorrect, please make sure the Phorg application is being used correctly"
 					#sys.exit()
-
+	
+	"""
 	#loop through the objects and insert them into the database, update the data in the database, or skip
 	for object in insertList:
 		print "\n"
@@ -114,53 +115,78 @@ def insertDatabase(insertList):
 			database="PhotoData"
 		)
 
-		#open the cursor
-		dbCursor = dataBase.cursor()
+		#loop through the insert objects, iterating through each one and inserting their data into the database
+		for photo in insertList:
+
+			#open the cursor
+			dbCursor = dataBase.cursor()
+
+			print "checking to see if photo "+str(photo.imageName)+" has been entered into the Database yet..."
+
+			#add exception if the photo is already in the database, check information and do appropriate action
+			photoDataDB = "SELECT * FROM photoMetaData WHERE photoName=%s"
+			dbCursor.execute(photoDataDB, (photo.imageName,))
+
+			photoData=dbCursor.fetchall()
+
+			#if the data doesn't yet exist in the database
+			if not dbCursor.rowcount:
+
+				print "Image data not found in Database, entering data in to Database"
+
+				"""
+					Insert data into Database here
+				"""
+
+				#find the Camera Model and Lens model, then put them into the proper variables
+				lensDataDB = "SELECT lensIndex FROM lensData WHERE fullLensName=%s"
+				cameraDataDB = "SELECT cameraIndex FROM cameraData WHERE cameraModel=%s"
+
+				#run query for the lens index
+				dbCursor.execute(cameraDataDB, (photo.Model,))
+				cameraIndex=str(dbCursor.fetchall())
+				cameraIndex=cameraIndex[cameraIndex.find("(")+1:cameraIndex.find(",")]
+
+				#run query for the camera index
+				dbCursor.execute(lensDataDB, (photo.LensModel,))
+				lensIndex=str(dbCursor.fetchall())
+				lensIndex=lensIndex[lensIndex.find("(")+1:lensIndex.find(",")]
+
+				#insert into the photoMetaData Table
+				v=(photo.imageName, photo.Date, photo.FocalLength,photo.FNumber,photo.ExposureTime,photo.ISOSpeedRatings,photo.BrightnessValue,cameraIndex,lensIndex)
+				sqlPhotoMetaData = "INSERT INTO photoMetaData (photoName,photoDate,focalLength,aperture,shutterSpeed,ISO,BrightnessValue,cameraIndex,lensIndex) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+				dbCursor.execute(sqlPhotoMetaData, v)
+
+				#Insert data into highlights table
+
+				#commit the changes to the database
+				dataBase.commit()
+
+			#if the database already has an entry, check to make sure the values haven't changed, if they have update the values to the correct ones
+			else:
+
+				print "Image data found in database, checking to see if location has changed"
+
+				#check to see if the date data matches, if so, check if location changed
 
 
-		#insert sql
-		#sqlPhotoHighlights = "INSERT INTO photoHighlights Highlight VALUES %s"
+				#if date data does not match, add it to the database
 
-		"""
-			Insert data into Database here
-		"""
+				dataBase.commit()
 
-		#find the Camera Model and Lens model, then put them into the proper variables
+				pass
+
+				"""
+					Perhaps I should allow multiple entries, just check to make sure the exif data (in particular the date data) is different?
+				"""
+
+				#run a query for the gallery/highlights and see if it has changed
 
 
-		#insert date if it is not entered yet
-		#print "Insert Date into database:"+str(insertList[0].Date)+"asdfasdf"
 
-		#queries for the lens and camera index
-		lensDataDB = "SELECT lensIndex FROM lensData WHERE fullLensName=%s"
-		cameraDataDB = "SELECT cameraIndex FROM cameraData WHERE cameraModel=%s"
+			dataBase.commit()
 
-		#run query for the lens index
-		dbCursor.execute(cameraDataDB, (insertList[0].Model,))
-		cameraIndex=str(dbCursor.fetchall())
-		cameraIndex=cameraIndex[cameraIndex.find("(")+1:cameraIndex.find(",")]
-
-		#run query for the camera index
-		dbCursor.execute(lensDataDB, (insertList[0].LensModel,))
-		lensIndex=str(dbCursor.fetchall())
-		lensIndex=lensIndex[lensIndex.find("(")+1:lensIndex.find(",")]
-
-		"""
-			Seems like the brightness value is being rounded...
-		"""
-
-		#insert into the photoMetaData Table
-		v=(insertList[0].imageName, insertList[0].Date, insertList[0].FocalLength,insertList[0].FNumber,insertList[0].ExposureTime,insertList[0].ISOSpeedRatings,insertList[0].BrightnessValue,cameraIndex,lensIndex)
-		sqlPhotoMetaData = "INSERT INTO photoMetaData (photoName,photoDate,focalLength,aperture,shutterSpeed,ISO,BrightnessValue,cameraIndex,lensIndex) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-		dbCursor.execute(sqlPhotoMetaData, v)
-
-		#insert into the photoHighlights Table
-		#sqlPhotoHighlights = "INSERT INTO photoHighlights Highlight VALUES %s"
-
-		#commit the new data to the database
-		dataBase.commit()
-
-		dataBase.close()
+		dataBase.close()	
 
 
 
@@ -203,9 +229,7 @@ class photoData:
 
 			#inclusions of EXIF data, and reformating of the data
 			if(	decoded=='ISOSpeedRatings'): self.ISOSpeedRatings=str(value)
-			elif(decoded=='LensModel'):
-				self.LensModel=str(value)
-				print "LensModel: "+str(self.LensModel)
+			elif(decoded=='LensModel'):self.LensModel=str(value)
 			elif(decoded=='Make'): self.Make=str(value)
 			elif(decoded=='Model'): self.Model=str(value)
 			elif(decoded=='ExposureTime'):
@@ -236,7 +260,7 @@ class photoData:
 
 				value=str(value)
 				newValue=float(value[value.find("(")+1:(value.find(","))])/float(value[value.find(",")+2:value.find(")")])
-				self.BrightnessValue=str(newValue)
+				self.BrightnessValue=newValue
 
 			elif(decoded=='DateTime'):
 
