@@ -157,7 +157,19 @@ def insertDatabase(insertList):
 				sqlPhotoMetaData = "INSERT INTO photoMetaData (photoName,photoDate,focalLength,aperture,shutterSpeed,ISO,BrightnessValue,cameraIndex,lensIndex) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 				dbCursor.execute(sqlPhotoMetaData, v)
 
-				#Insert data into highlights table
+				#insert the index from the photoMetaData Table into photoHighlights table
+				photoIndexInsert = "INSERT INTO photoHighlights (photoIndex) SELECT photoIndex FROM photoMetaData WHERE photoName=%s"
+				dbCursor.execute(photoIndexInsert, (photo.imageName,))
+
+				#get the photo index from the photoMetaData Table
+				photoIndexSelect = "SELECT photoIndex FROM photoMetaData WHERE photoName=%s"
+				dbCursor.execute(photoIndexSelect, (photo.imageName,))
+				photoIndex=str(dbCursor.fetchall())
+				photoIndex=photoIndex[photoIndex.find("(")+1:photoIndex.find(",")]
+
+				#insert the highlights values from the photoData object into the database
+				photoHighlightInsert = "UPDATE photoHighlights SET Highlight=%s WHERE photoIndex=%s"
+				dbCursor.execute(photoHighlightInsert, (photo.isHighlight,photoIndex))
 
 				#commit the changes to the database
 				dataBase.commit()
@@ -167,7 +179,11 @@ def insertDatabase(insertList):
 
 				print "Image data found in database, checking to see if location has changed"
 
-				#check to see if the date data matches, if so, check if location changed
+				"""
+					check to see if the date data matches, if so, check if location changed
+					Delete data in the database if the file no longer exists
+					Update if the file location has changed, make sure the file is still a highlight
+				"""
 
 
 				#if date data does not match, add it to the database
@@ -229,7 +245,6 @@ class photoData:
 
 			#inclusions of EXIF data, and reformating of the data
 			if(	decoded=='ISOSpeedRatings'): self.ISOSpeedRatings=str(value)
-			elif(decoded=='LensModel'):self.LensModel=str(value)
 			elif(decoded=='Make'): self.Make=str(value)
 			elif(decoded=='Model'): self.Model=str(value)
 			elif(decoded=='ExposureTime'):
@@ -270,16 +285,32 @@ class photoData:
 
 				self.Date=str(datetime.date(int(Year), int(Month), int(Day)))
 
+			"""
+				Add exception fo the Rokinon Lens
+				Adjust the values to null
+			"""
+
+			elif(decoded=='LensModel'):
+				self.LensModel=str(value)
+
 		#figure out if the photo is a highlight and in the gallery
 		self.Highlight()
 		#self.Gallery()
 
 	def Highlight(self):
 
-		if(os.path.exists(self.imagePath)==True and ('Hightlights' in self.imagePath)):
+		if("Highlights" in self.imagePath):
 			self.isHighlight=1
+			print "photo is a highlight"
 		else:
 			self.isHightlight=0
+
+	"""
+	def Highlight(self):
+
+		if( insert path here to gallery folder, check if hte image exists in the folder)
+
+	"""
 
 
 #run after imported
