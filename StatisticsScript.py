@@ -93,8 +93,8 @@ def updateDatabase():
 		print "\n"
 		for attr, value in object.__dict__.items():
 			print str(attr)+": "+str(value)
-	
 	"""
+	
 
 	#send the list to the insertDatabasefunction
 	insertDatabase(insertList)	
@@ -150,7 +150,16 @@ def insertDatabase(insertList):
 				#run query for the camera index
 				dbCursor.execute(lensDataDB, (photo.LensModel,))
 				lensIndex=str(dbCursor.fetchall())
-				lensIndex=lensIndex[lensIndex.find("(")+1:lensIndex.find(",")]
+
+				print photo.imageName+"'s lens index is: "+str(lensIndex)
+
+				#if the lens index cannot be read in properly, its the Rokinon lens, so correct the value
+				if(lensIndex=="[]"):
+					lensIndex=3
+					
+				else:
+					#parse the lens value from the query
+					lensIndex=lensIndex[lensIndex.find("(")+1:lensIndex.find(",")] 				
 
 				#insert into the photoMetaData Table
 				v=(photo.imageName, photo.Date, photo.FocalLength,photo.FNumber,photo.ExposureTime,photo.ISOSpeedRatings,photo.BrightnessValue,cameraIndex,lensIndex)
@@ -179,18 +188,45 @@ def insertDatabase(insertList):
 
 				print "Image data found in database, checking to see if location has changed"
 
+				#get the photo index from the photoMetaData Table
+				photoIndexSelect = "SELECT photoIndex FROM photoMetaData WHERE photoName=%s"
+				dbCursor.execute(photoIndexSelect, (photo.imageName,))
+				photoIndex=str(dbCursor.fetchall())
+				photoIndex=photoIndex[photoIndex.find("(")+1:photoIndex.find(",")]
+
+				#see if the photo is a highlight or not
+				photoHighlightSelect = "SELECT Highlight FROM photoHighlights WHERE photoIndex=%s"
+				dbCursor.execute(photoHighlightSelect, (photoIndex,))
+				photoHighlight=str(dbCursor.fetchall())
+				photoHighlight=photoIndex[photoIndex.find("(")+1:photoIndex.find(",")]
+
+				print "Query for photo Highlight: "+photoHighlight
+				print "Actual Photo Highlight Value: "+str(photo.isHighlight)
+
+
+				if(str(photoHighlight)==str(photo.isHighlight)):
+					print photo.imageName+"'s location has NOT changed, nothing changed"
+					pass
+
+				else:
+					print photo.imageName+" location has changed, changing the database value"
+
+					#change the value to the new value, insert the highlights values from the photoData object into the database
+					photoHighlightInsert = "UPDATE photoHighlights SET Highlight=%s WHERE photoIndex=%s"
+					dbCursor.execute(photoHighlightInsert, (photo.isHighlight,photoIndex))
+
 				"""
+
 					check to see if the date data matches, if so, check if location changed
 					Delete data in the database if the file no longer exists
 					Update if the file location has changed, make sure the file is still a highlight
+
 				"""
 
 
 				#if date data does not match, add it to the database
 
 				dataBase.commit()
-
-				pass
 
 				"""
 					Perhaps I should allow multiple entries, just check to make sure the exif data (in particular the date data) is different?
@@ -285,13 +321,13 @@ class photoData:
 
 				self.Date=str(datetime.date(int(Year), int(Month), int(Day)))
 
+			elif(decoded=='LensModel'):
+				self.LensModel=str(value)
+
 			"""
 				Add exception fo the Rokinon Lens
 				Adjust the values to null
 			"""
-
-			elif(decoded=='LensModel'):
-				self.LensModel=str(value)
 
 		#figure out if the photo is a highlight and in the gallery
 		self.Highlight()
