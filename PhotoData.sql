@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jan 25, 2019 at 07:05 PM
+-- Generation Time: Feb 10, 2019 at 12:41 AM
 -- Server version: 5.6.35
 -- PHP Version: 5.5.38
 
@@ -23,36 +23,48 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dateData`
+-- Table structure for table `cameraData`
 --
 
-CREATE TABLE IF NOT EXISTS `dateData` (
-  `Date` date NOT NULL COMMENT 'This is the information for a specific date',
-  `numPhotos` smallint(5) unsigned NOT NULL COMMENT 'Number of Photos taken on the specifc date'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `cameraData` (
+  `cameraIndex` int(11) NOT NULL,
+  `cameraMake` varchar(10) NOT NULL,
+  `cameraModel` varchar(10) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `cameraData`
+--
+
+INSERT INTO `cameraData` (`cameraIndex`, `cameraMake`, `cameraModel`) VALUES
+(1, 'SONY', 'ILCE-6000');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `photoData`
+-- Table structure for table `lensData`
 --
 
-CREATE TABLE IF NOT EXISTS `photoData` (
-  `photoIndex` int(10) unsigned NOT NULL,
-  `photoDate` date NOT NULL,
-  `photoName` tinytext CHARACTER SET utf16 NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='This table stores all the data from the photos metadata, plus the users selections for the highlights folder and eventually edits';
-
--- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `lensData` (
+  `lensIndex` int(11) NOT NULL,
+  `lensMake` varchar(11) NOT NULL,
+  `fullLensName` varchar(50) NOT NULL,
+  `lensMinFocal` int(3) NOT NULL,
+  `lensMaxFocal` int(3) NOT NULL,
+  `lensMinFStop` varchar(3) NOT NULL,
+  `lensMaxFStop` varchar(2) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `photoGallery`
+-- Dumping data for table `lensData`
 --
 
-CREATE TABLE IF NOT EXISTS `photoGallery` (
-  `photoIndex` int(10) unsigned NOT NULL DEFAULT '0',
-  `Gallery` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+INSERT INTO `lensData` (`lensIndex`, `lensMake`, `fullLensName`, `lensMinFocal`, `lensMaxFocal`, `lensMinFStop`, `lensMaxFStop`) VALUES
+(1, 'SONY', 'E PZ 16-50mm f/3.5-5.6 OSS Lens', 16, 50, '3.5', '36'),
+(2, 'SIGMA', '30mm F1.4 DC DN | Contemporary 016', 30, 30, '1.4', '16'),
+(3, 'ROKINON', '12mm f/2.0 NCS CS', 12, 12, '2', '22'),
+(4, 'SONY', 'FE 85mm f/1.8', 85, 85, '1.8', '22'),
+(5, 'SONY', 'FE 70-200mm f/4 G OSS', 70, 200, '4', '22');
 
 -- --------------------------------------------------------
 
@@ -61,8 +73,9 @@ CREATE TABLE IF NOT EXISTS `photoGallery` (
 --
 
 CREATE TABLE IF NOT EXISTS `photoHighlights` (
-  `photoIndex` int(10) unsigned NOT NULL DEFAULT '0',
-  `Hightlight` tinyint(1) NOT NULL DEFAULT '0'
+  `photoIndex` int(11) NOT NULL,
+  `Highlight` tinyint(1) DEFAULT NULL,
+  `Gallery` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -72,11 +85,16 @@ CREATE TABLE IF NOT EXISTS `photoHighlights` (
 --
 
 CREATE TABLE IF NOT EXISTS `photoMetaData` (
-  `photoIndex` int(11) unsigned NOT NULL DEFAULT '0',
+  `photoIndex` int(11) unsigned NOT NULL,
+  `photoName` varchar(10) NOT NULL,
+  `photoDate` date NOT NULL,
   `focalLength` int(11) unsigned NOT NULL DEFAULT '0',
-  `aperture` tinyint(4) NOT NULL,
+  `aperture` float NOT NULL,
   `shutterSpeed` char(6) NOT NULL,
-  `ISO` smallint(6) DEFAULT NULL
+  `ISO` smallint(6) DEFAULT NULL,
+  `BrightnessValue` float NOT NULL,
+  `cameraIndex` tinyint(4) NOT NULL,
+  `lensIndex` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -84,75 +102,49 @@ CREATE TABLE IF NOT EXISTS `photoMetaData` (
 --
 
 --
--- Indexes for table `dateData`
+-- Indexes for table `cameraData`
 --
-ALTER TABLE `dateData`
-  ADD PRIMARY KEY (`Date`),
-  ADD UNIQUE KEY `Date` (`Date`),
-  ADD KEY `Date_2` (`Date`);
+ALTER TABLE `cameraData`
+  ADD PRIMARY KEY (`cameraIndex`);
 
 --
--- Indexes for table `photoData`
+-- Indexes for table `lensData`
 --
-ALTER TABLE `photoData`
-  ADD PRIMARY KEY (`photoIndex`),
-  ADD KEY `photoDate` (`photoDate`);
-
---
--- Indexes for table `photoGallery`
---
-ALTER TABLE `photoGallery`
-  ADD PRIMARY KEY (`photoIndex`);
+ALTER TABLE `lensData`
+  ADD PRIMARY KEY (`lensIndex`);
 
 --
 -- Indexes for table `photoHighlights`
 --
 ALTER TABLE `photoHighlights`
-  ADD PRIMARY KEY (`photoIndex`);
+  ADD UNIQUE KEY `photoHighlightIndex` (`photoIndex`);
 
 --
 -- Indexes for table `photoMetaData`
 --
 ALTER TABLE `photoMetaData`
-  ADD PRIMARY KEY (`photoIndex`);
+  ADD PRIMARY KEY (`photoIndex`),
+  ADD UNIQUE KEY `photoName` (`photoName`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `photoData`
+-- AUTO_INCREMENT for table `cameraData`
 --
-ALTER TABLE `photoData`
-  MODIFY `photoIndex` int(10) unsigned NOT NULL AUTO_INCREMENT;
+ALTER TABLE `cameraData`
+  MODIFY `cameraIndex` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
--- Constraints for dumped tables
+-- AUTO_INCREMENT for table `lensData`
 --
-
+ALTER TABLE `lensData`
+  MODIFY `lensIndex` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
 --
--- Constraints for table `photoData`
---
-ALTER TABLE `photoData`
-  ADD CONSTRAINT `photodata_ibfk_1` FOREIGN KEY (`photoDate`) REFERENCES `dateData` (`Date`);
-
---
--- Constraints for table `photoGallery`
---
-ALTER TABLE `photoGallery`
-  ADD CONSTRAINT `photogallery_ibfk_1` FOREIGN KEY (`photoIndex`) REFERENCES `photoData` (`photoIndex`);
-
---
--- Constraints for table `photoHighlights`
---
-ALTER TABLE `photoHighlights`
-  ADD CONSTRAINT `photohighlights_ibfk_1` FOREIGN KEY (`photoIndex`) REFERENCES `photoData` (`photoIndex`) ON UPDATE CASCADE;
-
---
--- Constraints for table `photoMetaData`
+-- AUTO_INCREMENT for table `photoMetaData`
 --
 ALTER TABLE `photoMetaData`
-  ADD CONSTRAINT `photometadata_ibfk_1` FOREIGN KEY (`photoIndex`) REFERENCES `photoData` (`photoIndex`) ON UPDATE CASCADE;
-
+  MODIFY `photoIndex` int(11) unsigned NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
